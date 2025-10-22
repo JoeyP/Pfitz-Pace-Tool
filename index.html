@@ -54,15 +54,8 @@
           </div>
           <div>
             <label>Race time</label>
-            <!-- Regular keyboard so ':' is available -->
             <input id="mTime" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><small class="err" id="mTime_err"></small>
           </div>
-          <div>
-            <label>Override marathon time</label>
-            <!-- Regular keyboard so ':' is available -->
-            <input id="overrideMar" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><small class="err" id="overrideMar_err"></small>
-          </div>
-          <div></div>
         </div>
         <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px; margin-top:6px">
           <div><label>Max HR (bpm)</label><input id="maxHR" type="number" inputmode="numeric" placeholder="—"></div>
@@ -125,7 +118,6 @@
             <select id="frrDist"><option>5K</option><option selected>10K</option><option>15K</option><option>Half Marathon</option></select>
           </div>
           <div><label>Race time</label>
-            <!-- Regular keyboard so ':' is available -->
             <input id="frrTime" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><small class="err" id="frrTime_err"></small>
           </div>
         </div>
@@ -172,7 +164,7 @@ const DISTS = { '5K':5000, '10K':10000, '15K':15000, 'Half Marathon':21097.5, 'M
 function paceFromTime(distMeters, timeSec){ const perMile=timeSec/(distMeters/1609.344); const perKm=timeSec/(distMeters/1000); return {mi:fmtTime(perMile), km:fmtTime(perKm)}; }
 function perMileFromTime(distMeters, timeSec){ const perMile=timeSec/(distMeters/1609.344); return fmtTime(perMile); }
 
-// === AM ratios (placeholder constants for equivalents) ===
+// === AM ratios (equivalents) ===
 const K5_FROM_K10=0.4808, K15_FROM_K10=1.536, TENMI_FROM_K10=1.72, HM_FROM_K10=2.22, MAR_FROM_K10=4.68;
 function amFrom10k(t10){ return { k10:t10, k5:t10*K5_FROM_K10, k15:t10*K15_FROM_K10, tenmi:t10*TENMI_FROM_K10, hm:t10*HM_FROM_K10, mar:t10*MAR_FROM_K10 }; }
 function fillQuickAMEq(t10){
@@ -184,19 +176,17 @@ function fillQuickAMEq(t10){
   });
 }
 
-// === Marathon calculator ===
+// === Marathon calculator (no override) ===
 function calcMarathon(){
   const dist=$('#mDist').value;
   const t=parseTimeValue($('#mTime').value,'mTime');
-  const ovr=parseTimeValue($('#overrideMar').value,'overrideMar');
   let t10=null;
   if(t){ if(dist==='10K') t10=t; else if(dist==='5K') t10=t/K5_FROM_K10; else if(dist==='15K') t10=t/K15_FROM_K10; else if(dist==='Half Marathon') t10=t/HM_FROM_K10; else if(dist==='Marathon') t10=t/MAR_FROM_K10; }
-  else if(ovr){ t10=ovr/MAR_FROM_K10; }
+
   if(t){ $('#sumDist').textContent=dist; $('#sumTime').textContent=fmtHMS(t); const p=paceFromTime(DISTS[dist], t); $('#sumPace').textContent=`${p.mi} / ${p.km}`; }
-  else if(ovr){ $('#sumDist').textContent='Marathon (override)'; $('#sumTime').textContent=fmtHMS(ovr); const p=paceFromTime(DISTS['Marathon'], ovr); $('#sumPace').textContent=`${p.mi} / ${p.km}`; }
   else { ['sumDist','sumTime','sumPace'].forEach(id=>$('#'+id).textContent='—'); }
 
-  const marSec = ovr || (t10 ? amFrom10k(t10).mar : null);
+  const marSec = t10 ? amFrom10k(t10).mar : null;
   $('#goalMar').textContent=fmtHMS(marSec);
   const mpMi=marSec?marSec/26.21875:null, mpKm=marSec?marSec/42.195:null;
   $('#goalMP').textContent = mpMi?`${fmtTime(mpMi)} / ${fmtTime(mpKm)}`:'—';
@@ -344,7 +334,7 @@ function wire(){
   });
   document.getElementById('calcA').addEventListener('click', calcMarathon);
   document.getElementById('calcB').addEventListener('click', calcFRR);
-  ['mTime','overrideMar','maxHR','restHR'].forEach(id=>{ const el=document.getElementById(id); el.addEventListener('keydown',e=>{ if(e.key==='Enter') calcMarathon();}); });
+  ['mTime','maxHR','restHR'].forEach(id=>{ const el=document.getElementById(id); el.addEventListener('keydown',e=>{ if(e.key==='Enter') calcMarathon();}); });
   ['frrTime'].forEach(id=>{ const el=document.getElementById(id); el.addEventListener('keydown',e=>{ if(e.key==='Enter') calcFRR(); }); });
 
   calcHRZones();
