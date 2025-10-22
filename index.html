@@ -48,8 +48,13 @@
         <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px">
           <div>
             <label>Race distance</label>
+            <!-- reordered: 5K → 10K → 15K → HM → Marathon -->
             <select id="mDist">
-              <option selected>10K</option><option>5K</option><option>15K</option><option>Half Marathon</option><option>Marathon</option>
+              <option>5K</option>
+              <option selected>10K</option>
+              <option>15K</option>
+              <option>Half Marathon</option>
+              <option>Marathon</option>
             </select>
           </div>
           <div>
@@ -244,7 +249,7 @@ function calcHRZones(){
   });
 }
 
-// === FRR dataset/interp (sample two rows; extendable) ===
+// === FRR dataset/interp (small seed set; extend as needed) ===
 const FRR_ROWS = [
   {k10:(42*60+38), fiveK:(20*60+30), k15:(65*60+27), half:(94*60+40), ltLo:"6:51", ltHi:"7:01", lrEarly:"9:08", lrLatter:"8:14", v400f:95, v400s:98, s300f:64, s300s:69, s200f:43, s200s:46},
   {k10:(43*60+24), fiveK:(21*60+1),  k15:(66*60+49), half:(96*60+32), ltLo:"6:59", ltHi:"7:09", lrEarly:"9:17", lrLatter:"8:23", v400f:96, v400s:100, s300f:65, s300s:70, s200f:44, s200s:47}
